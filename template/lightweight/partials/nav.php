@@ -9,7 +9,7 @@
     <li><a href="index.php?p=member"><?php echo __('Member Area'); ?></a></li>
     <li><a href="index.php?p=librarian"><?php echo __('Librarian'); ?></a></li>
     <li><a href="index.php?p=help"><?php echo __('Help on Search'); ?></a></li>
-    <li><a href="index.php?p=login"><?php echo __('Librarian LOGIN'); ?></a></li>
+    <li><a href="index.php?p=login"><?php echo __('Login'); ?></a></li>
     <li><a href="index.php?p=slimsinfo"><?php echo __('About SLiMS'); ?></a></li>
   </ul>
 
@@ -20,7 +20,7 @@
       <label class="language-info" for="select_lang"><?php echo __('Select Language'); ?></label>
       <span class="custom-dropdown custom-dropdown--emerald custom-dropdown--small">
         <select name="select_lang" id="select_lang" title="Change language of this site" onchange="document.langSelect.submit();" class="custom-dropdown__select custom-dropdown__select--emerald">
-          <?php echo $language_select; ?>
+          <?php echo $language_select ?? ''; ?>
         </select>
       </span>
     </form>

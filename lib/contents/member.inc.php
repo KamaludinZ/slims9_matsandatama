@@ -89,6 +89,13 @@ if (isset($_GET['logout']) && $_GET['logout'] == '1') {
     ])->to('?p=member');
 }
 
+// Unified login: member login form is now in the same login page as librarian
+// (index.php?p=login). Redirect not-logged-in visitor to that page.
+if (!$is_member_login && !isset($_POST['logMeIn'])) {
+    $destination = (isset($_GET['destination']) && Url::isValid($_GET['destination']) && Url::isSelf($_GET['destination'])) ? '&destination=' . urlencode($_GET['destination']) : '';
+    redirect(SWB . 'index.php?p=login' . $destination);
+}
+
 // if there is member login action
 if (isset($_POST['logMeIn']) && !$is_member_login) {
     if (!CSRF::validate($_POST)) {
@@ -129,7 +136,7 @@ if (isset($_POST['logMeIn']) && !$is_member_login) {
         // message
         //simbio_security::destroySessionCookie($msg, MEMBER_COOKIES_NAME, SWB, false);
         CSRF::generateToken();
-        redirect()->withMessage('wrong_password', $logon->getError())->to('?p=member');
+        redirect()->withMessage('wrong_password', $logon->getError())->to('?p=login');
     }
 }
 

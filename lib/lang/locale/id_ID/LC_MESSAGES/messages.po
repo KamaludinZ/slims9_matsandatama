@@ -11131,3 +11131,12 @@ msgstr "Masukkan kata kunci..."
 
 #~ msgid "Available Modules"
 #~ msgstr "Modul Tersedia"
+
+msgid "Librarian: use your username. Library member: use your Member ID."
+msgstr "Pustakawan: gunakan username. Anggota/pengunjung: gunakan ID Anggota."
+
+msgid "Username / Member ID"
+msgstr "Username / ID Anggota"
+
+msgid "Librarian & Member Login"
+msgstr "Login Pustakawan & Anggota"

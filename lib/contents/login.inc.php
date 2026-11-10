@@ -69,6 +69,14 @@ if ($logon->isUserLoggedIn()) {
     redirect()->to('admin/index.php');
 }
 
+// unified login: member (pengunjung/anggota) already logged in? go to member area
+if (utility::isMemberLogin()) {
+    redirect()->toPath('member');
+}
+
+// keep destination (used by member area, e.g. after login to post comment)
+$_login_destination = (isset($_GET['destination']) && \SLiMS\Url::isValid($_GET['destination']) && \SLiMS\Url::isSelf($_GET['destination'])) ? $_GET['destination'] : '';
+
 if (isset($_GET['wrongpass'])) {
     $message = Cookie::get('login_error');
     redirect()->withMessage('wrong_password', empty($message) ? __('Wrong Username or Password. ACCESS DENIED') : $message)->toPath('login');
@@ -142,6 +150,31 @@ if (isset($_POST['logMeIn'])) {
 
         redirect('admin/index.php');
     } else {
+        // ---------------------------------------------------------------
+        // Unified login: not a librarian account, try as library member
+        // (pengunjung/anggota) using the same username (Member ID) & password
+        // ---------------------------------------------------------------
+        $_POST['memberID'] = $username;
+        $_POST['memberPassWord'] = $password;
+        $memberLogon = Validator::use(
+            config(
+            'auth.methods.' . config('auth.sections.member'),
+            \SLiMS\Auth\Methods\Native::class
+            )
+        );
+        $memberLogon->getHook();
+
+        if ($memberLogon->process('member')) {
+            // regenerate session ID to prevent session hijacking
+            session_regenerate_id(true);
+            // write log
+            writeLog('member', $username, 'Login', sprintf(__('Login success for member %s from address %s'), $username, ip()));
+            if (!empty($_login_destination)) redirect($_login_destination);
+            redirect()->toPath('member');
+            exit();
+        }
+        writeLog('member', $username, 'Login', sprintf(__('Login FAILED for member %s from address %s'), $username, ip()));
+
         // write log
         writeLog('staff', $username, 'Login', 'Login FAILED for user ' . $username . ' from address ' . ip());
 
@@ -151,7 +184,7 @@ if (isset($_POST['logMeIn'])) {
                 ->withExpires(time() + 60)
                 ->withHttponly()
                 ->withSamesite('Lax')
-                ->set('login_error', $logon->getError());
+                ->set('login_error', __('Wrong Username or Password. ACCESS DENIED'));
 
         redirect('?p=login&wrongpass=true');
         exit();
@@ -166,7 +199,7 @@ $_uname = (isset($_COOKIE['uname'])) ? trim($_COOKIE['uname']) : '';
     <noscript>
         <div style="font-weight: bold; color: #FF0000;"><?php echo __('Your browser does not support Javascript or Javascript is disabled. Application won\'t run without Javascript!'); ?><div>
     </noscript>
-    <form action="index.php?p=<?php echo $path; ?>" method="post">
+    <form action="index.php?p=<?php echo $path; ?><?= $_login_destination ? '&destination=' . urlencode($_login_destination) : '' ?>" method="post">
         <?php
         if (isset($_GET['update']) && !empty($_GET['update'])) { ?>
             <?php if (isset($_COOKIE['token']) && $_GET['update'] === $_COOKIE['token']) { ?>
@@ -211,7 +244,8 @@ $_uname = (isset($_COOKIE['uname'])) ? trim($_COOKIE['uname']) : '';
             }
         ?>
 
-            <div class="heading1"><?php echo __('Username'); ?></div>
+            <div class="loginInfo small mb-2"><?php echo __('Librarian: use your username. Library member: use your Member ID.'); ?></div>
+            <div class="heading1"><?php echo __('Username / Member ID'); ?></div>
             <div class="login_input"><input type="text" name="userName" id="userName" class="login_input" required /></div>
             <div class="heading1"><?php echo __('Password'); ?></div>
             <div class="login_input"><input type="password" name="passWord" class="login_input" autocomplete="off" required /></div>
@@ -233,7 +267,7 @@ $_uname = (isset($_COOKIE['uname'])) ? trim($_COOKIE['uname']) : '';
                     <div class="remember">
                         <?php if ($sysconf['always_user_login']) : ?>
                             <input type="checkbox" id="remember_me" name="remember" value="1">
-                            <label for="remember_me"><?= __('Remember me') ?></label>
+                            <label for="remember_me"><?= __('Remember me') ?> <small>(<?= __('Librarian') ?>)</small></label>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -252,7 +286,17 @@ $_uname = (isset($_COOKIE['uname'])) ? trim($_COOKIE['uname']) : '';
 $main_content = ob_get_clean();
 
 // page title
-$opac->page_title = __('Library Automation Login') . ' | ' . $sysconf['library_name'];
+$opac->page_title = __('Librarian & Member Login') . ' | ' . $sysconf['library_name'];
+$page_title = $opac->page_title;
+
+// Load common SLiMS template variables ($language_select, $location_list, etc.)
+// Some themes (e.g. "lightweight") need these variables on the login page,
+// without them the login page crashed after the theme was changed.
+if (!isset($language_select)) {
+    $available_languages = $available_languages ?? [];
+    require LIB . 'contents/common.inc.php';
+}
+$metadata = $metadata ?? '<meta name="robots" content="noindex, follow">';
 
 if ($sysconf['template']['base'] == 'html') {
     // create the template object

@@ -77,6 +77,20 @@ if (utility::isMemberLogin()) {
 // keep destination (used by member area, e.g. after login to post comment)
 $_login_destination = (isset($_GET['destination']) && \SLiMS\Url::isValid($_GET['destination']) && \SLiMS\Url::isSelf($_GET['destination'])) ? $_GET['destination'] : '';
 
+// Tombol alternatif "Masuk lewat Super App" (SSO). Tampil hanya bila plugin "Login lewat Super App"
+// aktif dan config/superapp.php sudah diisi. Login biasa di atas tetap berfungsi seperti semula.
+$_superapp_tombol = '';
+$_superapp_cfg = (array) config('superapp.sso', []);
+if (($_superapp_cfg['tombol_login'] ?? true)
+    && !empty($_superapp_cfg['url']) && !empty($_superapp_cfg['kunci'])
+    && isset(\SLiMS\Plugins::getInstance()->getMenus('opac')['superapp_sso'])) {
+    $_superapp_tombol = trim((string) ($_superapp_cfg['url_tombol'] ?? ''));
+    if ($_superapp_tombol === '') {
+        $_superapp_tombol = preg_replace('#/api/sso/?$#', '', rtrim((string) $_superapp_cfg['url'], '/')) . '/dashboard';
+    }
+    if (!preg_match('#^https?://#i', $_superapp_tombol)) $_superapp_tombol = '';
+}
+
 if (isset($_GET['wrongpass'])) {
     $message = Cookie::get('login_error');
     redirect()->withMessage('wrong_password', empty($message) ? __('Wrong Username or Password. ACCESS DENIED') : $message)->toPath('login');
@@ -276,6 +290,20 @@ $_uname = (isset($_COOKIE['uname'])) ? trim($_COOKIE['uname']) : '';
             </div>
         <?php } ?>
     </form>
+    <?php if ($_superapp_tombol && empty($_GET['update'])) : ?>
+        <div class="superapp-sso" style="margin-top: 18px; text-align: center; max-width: 320px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #888; font-size: 12px;">
+                <span style="flex: 1; border-top: 1px solid #ddd;"></span><?= __('or') ?><span style="flex: 1; border-top: 1px solid #ddd;"></span>
+            </div>
+            <a href="<?= htmlspecialchars($_superapp_tombol, ENT_QUOTES) ?>" class="superAppButton" rel="noopener"
+               style="display: block; padding: 10px 14px; border-radius: 6px; background: #0f7a4f; color: #fff; text-decoration: none; font-weight: 600;">
+                <?= __('Login with Super App') ?>
+            </a>
+            <div style="margin-top: 6px; color: #888; font-size: 12px;">
+                <?= __('Students, teachers and staff: open Super App, then choose "Library".') ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 <script type="text/javascript">
     jQuery('#userName').focus();

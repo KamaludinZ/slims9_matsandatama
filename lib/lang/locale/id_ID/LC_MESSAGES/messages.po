@@ -11140,3 +11140,12 @@ msgstr "Username / ID Anggota"
 
 msgid "Librarian & Member Login"
 msgstr "Login Pustakawan & Anggota"
+
+msgid "or"
+msgstr "atau"
+
+msgid "Login with Super App"
+msgstr "Masuk lewat Super App"
+
+msgid "Students, teachers and staff: open Super App, then choose \"Library\"."
+msgstr "Siswa, guru & pegawai: buka Super App, lalu pilih \"Perpustakaan\"."

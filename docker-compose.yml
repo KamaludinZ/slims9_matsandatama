@@ -13,6 +13,10 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_NAME=${DB_NAME}
+      # Login lewat Super App (opsional, lihat docs/SSO_SUPERAPP.md)
+      - SUPERAPP_SSO_URL=${SUPERAPP_SSO_URL:-}
+      - SUPERAPP_SSO_KUNCI=${SUPERAPP_SSO_KUNCI:-}
+      - SUPERAPP_SSO_URL_TOMBOL=${SUPERAPP_SSO_URL_TOMBOL:-}
     volumes:
       - appfiles:/var/www/html/files
       - appimages:/var/www/html/images

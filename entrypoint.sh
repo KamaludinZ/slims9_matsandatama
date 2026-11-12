@@ -43,6 +43,26 @@ EOF
 echo "PHP configuration file created: /var/www/html/config/database.php"
 cat /var/www/html/config/database.php
 
+# Login lewat Super App (SSO): buat config/superapp.php dari environment variable
+# SUPERAPP_SSO_URL dan SUPERAPP_SSO_KUNCI (diisi di Coolify > Environment Variables).
+# Pengaturan lain diambil dari config/superapp.sample.php. Bila kosong, SSO tidak aktif
+# (tombol tidak tampil) dan login biasa tetap berjalan.
+if [ -n "${SUPERAPP_SSO_URL}" ] && [ -n "${SUPERAPP_SSO_KUNCI}" ]; then
+    php -r '
+define("SB", "/var/www/html/");
+$cfg = require "/var/www/html/config/superapp.sample.php";
+$cfg["sso"]["url"] = getenv("SUPERAPP_SSO_URL");
+$cfg["sso"]["kunci"] = getenv("SUPERAPP_SSO_KUNCI");
+if (($t = getenv("SUPERAPP_SSO_URL_TOMBOL")) !== false && $t !== "") $cfg["sso"]["url_tombol"] = $t;
+file_put_contents("/var/www/html/config/superapp.php", "<?php\n// Dibuat otomatis oleh entrypoint.sh dari environment variable. Jangan diedit di sini.\nreturn " . var_export($cfg, true) . ";\n");
+'
+    chown www-data:www-data /var/www/html/config/superapp.php
+    chmod 640 /var/www/html/config/superapp.php
+    echo "Super App SSO config created: /var/www/html/config/superapp.php (url: ${SUPERAPP_SSO_URL})"
+else
+    echo "Super App SSO not configured (SUPERAPP_SSO_URL / SUPERAPP_SSO_KUNCI empty), skipping."
+fi
+
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
 until php -r "

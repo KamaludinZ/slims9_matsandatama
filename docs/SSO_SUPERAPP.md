@@ -60,6 +60,17 @@ Buka `config/superapp.php`, isi:
 
 File ini **tidak ikut git** (sudah diabaikan `.gitignore`), jadi kunci tidak bocor.
 
+> **Pakai Coolify / Docker?** Tidak perlu membuat file. Isi **Environment Variables** di Coolify:
+>
+> | Nama | Isi |
+> | --- | --- |
+> | `SUPERAPP_SSO_URL` | `https://superapp.madrasah.sch.id/api/sso` |
+> | `SUPERAPP_SSO_KUNCI` | `sso_xxxxxxxxxxxxxxxx` (centang **Is Secret** bila ada) |
+> | `SUPERAPP_SSO_URL_TOMBOL` | opsional, alamat yang dibuka tombol (kosong = otomatis `.../dashboard`) |
+>
+> Lalu **Redeploy**. `entrypoint.sh` membuat `config/superapp.php` otomatis saat container mulai.
+> Di Coolify, pastikan **Branch** = `main` (bukan `v9.8.0`, itu nama tag di repo resmi SLiMS).
+
 ### 3. Aktifkan plugin
 
 Login SLiMS sebagai admin → **Sistem → Plugin** → aktifkan **Login lewat Super App**.

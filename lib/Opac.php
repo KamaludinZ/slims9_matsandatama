@@ -344,7 +344,29 @@ class Opac
                 ->parseToTemplate(); // then parse to template
             
         } catch (Exception $e) {
-            echo $this->error(isDev() ? $e->getMessage() : 'something wrong.');
+            if (isDev()) {
+                echo $this->error($e->getMessage());
+            } else {
+                // Halaman error yang serasi dengan tema (template/error_layout.php)
+                require_once SB . 'template/error_layout.php';
+                $notFound = http_response_code() === 404;
+                $ref = '';
+                if (!$notFound) {
+                    http_response_code(500);
+                    $ref = strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
+                    error_log(sprintf('[SLiMS error ref %s] %s | URL: %s', $ref, $e->getMessage(), $_SERVER['REQUEST_URI'] ?? '-'));
+                }
+                $this->page_title = ($notFound ? 'Halaman Tidak Ditemukan' : 'Terjadi Gangguan pada Sistem') . ' | ' . ($this->sysconf['library_name'] ?? 'Perpustakaan');
+                echo slims_error_page([
+                    'code' => $notFound ? 404 : 500,
+                    'base' => SWB,
+                    'root' => SB,
+                    'library' => $this->sysconf['library_name'] ?? '',
+                    'show_search' => false,
+                    'ref' => $ref,
+                    'fragment' => true,
+                ]);
+            }
             $this->parseToTemplate();
         }
     }

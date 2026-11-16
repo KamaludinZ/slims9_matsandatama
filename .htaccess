@@ -26,6 +26,14 @@ Options +SymLinksIfOwnerMatch
   ErrorDocument 404 "The requested file favicon.ico was not found.
 </Files>
 
+# Halaman error yang serasi dengan tema (template/httperror.php).
+# Jika SLiMS dipasang di sub-folder (mis. /slims/), ubah menjadi /slims/template/httperror.php
+ErrorDocument 400 /template/httperror.php
+ErrorDocument 403 /template/httperror.php
+ErrorDocument 404 /template/httperror.php
+ErrorDocument 500 /template/httperror.php
+ErrorDocument 503 /template/httperror.php
+
 # Set the default handler.
 DirectoryIndex index.php 
 

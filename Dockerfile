@@ -11,6 +11,11 @@ RUN apt-get update \
 
 RUN a2enmod rewrite
 
+# Hardening: sembunyikan versi Apache/PHP di header dan halaman error (mis. 404)
+RUN printf 'ServerTokens Prod\nServerSignature Off\n' > /etc/apache2/conf-available/zz-hardening.conf \
+    && a2enconf zz-hardening \
+    && printf 'expose_php = Off\n' > /usr/local/etc/php/conf.d/zz-hardening.ini
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/html

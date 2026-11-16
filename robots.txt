@@ -1,0 +1,26 @@
+# robots.txt - Perpustakaan (SLiMS)
+#
+# File ini memang PUBLIK dan aman diakses siapa saja. Isinya hanya permintaan
+# untuk mesin pencari (Google, Bing, dll.) bagian mana yang tidak perlu diindeks.
+# Ini BUKAN pengaman: folder di bawah tetap dilindungi oleh login dan .htaccess.
+
+User-agent: *
+# Katalog OPAC (beranda, pencarian, detail buku) boleh diindeks
+Allow: /
+
+# Halaman pengelolaan dan file sistem
+Disallow: /admin/
+Disallow: /install/
+Disallow: /upgrade/
+Disallow: /config/
+Disallow: /lib/
+Disallow: /api/
+Disallow: /files/
+Disallow: /repository/
+
+# Halaman login, area anggota, dan SSO (tidak berguna di hasil pencarian)
+Disallow: /*p=login
+Disallow: /*p=member
+Disallow: /*p=superapp_sso
+Disallow: /*p=2fa
+Disallow: /*p=forgot

@@ -223,7 +223,7 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
                 <div class="card border-0">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo __('Latest Transactions') ?></h5>
-                        <canvas id="line-chartjs" height="294"></canvas>
+                        <div class="chart-wrap" style="position: relative; height: 294px;"><canvas id="line-chartjs"></canvas></div>
                         <div class="s-dashboard-legend">
                             <i class="fa fa-square" style="color:#F4CC17;"></i> <?php echo __('Loan') ?>
                             <i class="fa fa-square" style="color:#459CBD;"></i> <?php echo __('Return') ?>
@@ -237,7 +237,7 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
                     <div class="card-body">
                         <h5 class="card-title"><?php echo __('Summary') ?></h5>
                         <div class="s-chart">
-                            <canvas id="radar-chartjs" width="175" height="175"></canvas>
+                            <div class="chart-wrap" style="position: relative; height: 175px;"><canvas id="radar-chartjs"></canvas></div>
                         </div>
                         <table class="table">
                             <tr>
@@ -277,7 +277,7 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
         </div>
     </div>
 </div>
-    <script src="<?php echo JWB ?>chartjs/Chart.min.js"></script>
+    <script src="<?php echo JWB ?>chartjs/chart-2.9.4.min.js"></script>
     <script>
             
         $(function () {
@@ -334,22 +334,25 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
 
                     ];
 
-                    let r = $('#radar-chartjs');
-                    let container = $(r).parent();
-                    let rt = r.get(0).getContext("2d");
-                    $(window).resize(respondCanvas);
-
-                    function respondCanvas() {
-                        r.attr('width', $(container).width()); //max width
-                        r.attr('height', $(container).height()); //max height
-                        //Call a function to redraw other content (texts, images etc)
-                        let myChart = new Chart(rt).Doughnut(data, {
+                    // Chart.js 2.9.4 (Chart.js 1.x lama punya celah CVE-2020-7746)
+                    new Chart(document.getElementById('radar-chartjs'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.map(d => d.label),
+                            datasets: [{
+                                data: data.map(d => d.value),
+                                backgroundColor: data.map(d => d.color),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
                             animation: false,
-                            segmentStrokeWidth: 1
-                        });
-                    }
-
-                    respondCanvas()
+                            cutoutPercentage: 50,
+                            legend: { display: false }
+                        }
+                    });
                 });
 
             // ===================================
@@ -367,44 +370,39 @@ if (basename($_SERVER['PHP_SELF']) == basename(__FILE__)) {
                         labels: res.raw,
                         datasets: [
                             {
-                                fillColor: '#F4CC17',
-                                highlightFill: '#F4CC17',
+                                label: "<?php echo __('Loan'); ?>",
+                                backgroundColor: '#F4CC17',
+                                hoverBackgroundColor: '#F4CC17',
                                 data: res_total.loan
                             },
                             {
-                                fillColor: '#459CBD',
-                                highlightFill: '#459CBD',
+                                label: "<?php echo __('Return'); ?>",
+                                backgroundColor: '#459CBD',
+                                hoverBackgroundColor: '#459CBD',
                                 data: res_total.return
                             },
                             {
-                                fillColor: '#5D45BD',
-                                highlightFill: '#5D45BD',
+                                label: "<?php echo __('Extend'); ?>",
+                                backgroundColor: '#5D45BD',
+                                hoverBackgroundColor: '#5D45BD',
                                 data: res_total.extend
                             },
                         ]
                     }
 
-                    let c = $('#line-chartjs');
-                    let container = $(c).parent();
-                    let ct = c.get(0).getContext("2d");
-                    $(window).resize(respondCanvas);
-
-                    function respondCanvas() {
-                        c.attr('width', $(container).width()); //max width
-                        c.attr('height', $(container).height()); //max height
-                        //Call a function to redraw other content (texts, images etc)
-                        new Chart(ct).Bar(lineChartData, {
-                            barShowStroke: false,
-                            barDatasetSpacing: 4,
-                            animation: {
-                                onProgress: function(animation) {
-                                    progress.value = animation.animationObject.currentStep / animation.animationObject.numSteps;
-                                }
+                    new Chart(document.getElementById('line-chartjs'), {
+                        type: 'bar',
+                        data: lineChartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            legend: { display: false }, // legenda sudah ada di bawah grafik (HTML)
+                            scales: {
+                                xAxes: [{ gridLines: { display: false }, categoryPercentage: 0.8, barPercentage: 0.9 }],
+                                yAxes: [{ ticks: { beginAtZero: true, precision: 0 } }]
                             }
-                        });
-                    }
-
-                    respondCanvas();
+                        }
+                    });
                 })
             })
         });

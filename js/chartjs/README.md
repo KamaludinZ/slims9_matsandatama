@@ -1,17 +1,10 @@
-# Chart.js[![Code Climate](https://codeclimate.com/github/nnnick/Chart.js/badges/gpa.svg)](https://codeclimate.com/github/nnnick/Chart.js)
+# Chart.js
 
-*Simple HTML5 Charts using the canvas element* [chartjs.org](http://www.chartjs.org)
+Dipakai SLiMS untuk grafik dashboard admin dan laporan.
 
-## Documentation
+- `chart-2.9.4.min.js` – Chart.js v2.9.4 (https://www.chartjs.org), lisensi MIT (lihat LICENSE.md).
+  Diambil dari paket npm `chart.js@2.9.4` (`dist/Chart.min.js`).
 
-You can find documentation at [chartjs.org/docs](http://www.chartjs.org/docs/). The markdown files that build the site are available under `/docs`. Please note - in some of the json examples of configuration you might notice some liquid tags - this is just for the generating the site html, please disregard.
-
-## License
-
-Chart.js is available under the [MIT license](http://opensource.org/licenses/MIT).
-
-## Bugs & issues
-
-When reporting bugs or issues, if you could include a link to a simple [jsbin](http://jsbin.com) or similar demonstrating the issue, that'd be really helpful.
-
-This project is modular and supports separately-maintained new chart types. This project's scope includes only the chart types included. New chart types should be created and maintained in separate repositories. We may consider linking to them from this project if they incude passing build tests and have complete documentation. Please discuss new or "missing" chart types in the [Chart.js User Discussion](https://groups.google.com/forum/#!forum/chartjs-user-discussion) Google Group and not in Issues. For more information, please also see the CONTRIBUTING file.
+Chart.js 1.0.1-beta.4 yang lama sudah dihapus karena celah keamanan CVE-2020-7746
+(prototype pollution, diperbaiki mulai 2.9.4). Pemakainya (admin/default/home.php dan
+admin/modules/reporting/pop_chart.php) sudah dipindahkan ke API Chart.js 2.

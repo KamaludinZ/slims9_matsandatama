@@ -1,13 +1,21 @@
-FROM php:8.3.13-apache
+# Base image: PHP 8.3 versi patch TERBARU di Debian 12 (bookworm).
+# Sengaja tidak dikunci ke nomor patch (dulu 8.3.13) supaya setiap build ulang
+# otomatis mendapat perbaikan keamanan PHP, Apache, dan OpenSSL terbaru.
+# Di Coolify: lakukan build ulang TANPA cache agar base image terbaru ditarik.
+FROM php:8.3-apache-bookworm
 
 RUN apt-get update \
+    # pasang semua pembaruan keamanan Debian yang terbit setelah base image dibuat
+    && apt-get upgrade -y \
     && apt-get install -y libicu-dev libxml2-dev libzip-dev libpng-dev libonig-dev libjpeg62-turbo libjpeg62-turbo-dev libfreetype6-dev \
     && docker-php-ext-install intl xml xmlwriter gettext mbstring zip mysqli pdo_mysql \
     && docker-php-ext-enable intl xml xmlwriter gettext mbstring zip mysqli pdo_mysql \
     && docker-php-ext-install -j$(nproc) iconv \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-enable gd
+    && docker-php-ext-enable gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN a2enmod rewrite
 
@@ -22,7 +30,7 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
-RUN composer install
+RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html/files
 RUN chown -R www-data:www-data /var/www/html/images

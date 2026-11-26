@@ -206,7 +206,7 @@ if($sysconf['chart']['mode'] == 'plot') {
         $plot->DrawGraph();
     }
 } else {
-    echo '<script src="'.JWB.'chartjs/chart-2.9.3.min.js"></script>
+    echo '<script src="'.JWB.'chartjs/chart-2.9.4.min.js"></script>
     <a class="print_btn" onclick="window.print()" href="#">Print</a>
     <div id="canvas-holder" style="text-align:center; width:70%; margin-left:auto; margin-right:auto;">
         <canvas id="chart-area" width="200" height="200" />

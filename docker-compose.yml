@@ -25,8 +25,16 @@ services:
       - "${HTTP_PORT}:80"
     networks:
       - proxy
+    healthcheck:
+      # sama dengan HEALTHCHECK di Dockerfile: Apache + PHP + koneksi database
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://127.0.0.1/health.php || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mariadb:lts
@@ -40,6 +48,13 @@ services:
     environment:
       - MARIADB_ROOT_PASSWORD=${DB_PASS}
       - MARIADB_DATABASE=${DB_NAME}
+    healthcheck:
+      # server MariaDB hidup dan menerima koneksi (berhasil walau tanpa login)
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     networks:
       - proxy
 

@@ -42,6 +42,13 @@ RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
 
+# Health check: Apache + PHP + koneksi database lewat /health.php (lihat file itu).
+# - start-period 90 dtk: entrypoint.sh menunggu database siap dulu sebelum Apache jalan,
+#   kegagalan selama masa ini tidak dihitung.
+# - container ditandai "unhealthy" setelah 3 kali gagal berturut-turut (sekitar 1,5 menit).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+    CMD curl -fsS -o /dev/null http://127.0.0.1/health.php || exit 1
+
 ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["apache2-foreground"]

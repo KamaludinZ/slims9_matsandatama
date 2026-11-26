@@ -15,6 +15,7 @@ Disallow: /upgrade/
 Disallow: /config/
 Disallow: /lib/
 Disallow: /api/
+Disallow: /health.php
 Disallow: /files/
 Disallow: /repository/
 
